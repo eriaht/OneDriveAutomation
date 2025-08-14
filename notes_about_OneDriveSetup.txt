@@ -1,0 +1,64 @@
+For what you’re doing — running OneDrive installs/updates just so ThreatLocker can capture hashes — it’s not *functionally* bad to drop `OneDriveSetup.exe` in your script directory.
+
+But there are a few practical considerations:
+
+---
+
+### **Why keeping it in your script folder is fine**
+
+* Windows doesn’t care where the installer is located — you can run `OneDriveSetup.exe` from anywhere.
+* ThreatLocker will still see the execution and resulting file writes.
+* It makes cleanup easy (delete the file at the end of the script).
+
+---
+
+### **Why you might want to use a different location**
+
+1. **Avoid clutter**
+   If you run multiple cycles and download different versions, your script folder will fill with `.exe` files unless you overwrite each time.
+
+2. **Path issues**
+   If your script is stored in a path with spaces or special characters, sometimes `subprocess.run()` calls can be finicky unless you wrap paths in quotes.
+
+3. **Accidental execution**
+   If someone browses your script folder and double-clicks `OneDriveSetup.exe`, they could trigger an install outside of your intended cycle.
+
+4. **System conventions**
+   Most installers temporarily live in `%TEMP%` or a staging folder (like `C:\Installers`), which is cleaner and easier to manage.
+
+---
+
+### **Best practice for automation**
+
+I’d suggest using the temp directory or a dedicated staging folder:
+
+```python
+import tempfile
+import os
+
+INSTALLER_PATH = os.path.join(tempfile.gettempdir(), "OneDriveSetup.exe")
+```
+
+That way:
+
+* It’s out of your working directory.
+* It’s easy to clean up after each run:
+
+```python
+if os.path.exists(INSTALLER_PATH):
+    os.remove(INSTALLER_PATH)
+```
+
+---
+
+If you’re going to run **many** versions for ThreatLocker Learning Mode, I’d put installers in a **versioned subfolder** like:
+
+```
+C:\OneDriveInstallers\25.149.0803.0002\OneDriveSetup.exe
+```
+
+That way ThreatLocker can pick up each binary separately, and you can re-run them later if needed.
+
+---
+
+If you want, I can tweak your cycling script so it **automatically stages installers in `%TEMP%` and deletes them after each cycle**, so you never have clutter. That’ll make your runs cleaner and fully self-contained.
