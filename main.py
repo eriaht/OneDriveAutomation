@@ -1,14 +1,17 @@
- import requests
+import requests
 import subprocess
 import os
 import time
 import psutil  # pip install psutil
 
 # Official Microsoft download link for OneDrive installer (Windows x64)
-ONEDRIVE_URL = "https://oneclient.sfx.ms/Win/Installers/25.149.0803.0002/OneDriveSetup.exe"
+ONEDRIVE_URL = "https://oneclient.sfx.ms/Win/Installers/25.149.0803.0002/amd64/OneDriveSetup.exe"
 INSTALLER_PATH = "OneDriveSetup.exe"
-# ONEDRIVE_EXE = os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\OneDrive\OneDrive.exe")
-ONEDRIVE_EXE = r"C:\Program Files (x86)\Microsoft OneDrive\OneDrive.exe"
+ONEDRIVE_EXE = r"C:\Program Files\Microsoft OneDrive\OneDrive.exe"
+
+# remove amd64 and use Program Files (x86) for 32 bit install
+
+# ONEDRIVE_EXE = os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\OneDrive\OneDrive.exe") per user install
 
 def download_installer():
     print("[+] Downloading OneDrive installer...")
@@ -48,14 +51,6 @@ def ensure_installer_finished():
         time.sleep(2)
     print("[+] Installer is no longer running.")
 
-# def check_for_update():
-#     print("[+] Checking for OneDrive updates...")
-#     if os.path.exists(ONEDRIVE_EXE):
-#         # subprocess.run([ONEDRIVE_EXE, "/update"], check=True)
-#         subprocess.run([r"C:\Users\Admin\Downloads\OneDriveAutomation-main\OneDriveAutomation-main\OneDriveSetup.exe"], check=True)
-#         print("[+] Update check complete.")
-#     else:
-#         print("[-] OneDrive.exe not found. Cannot check for updates.")
 
 def check_for_update():
     print("[+] Checking for OneDrive updates...")
@@ -83,4 +78,4 @@ if __name__ == "__main__":
 
     check_for_update()
     time.sleep(10)
-    # uninstall()
+    uninstall()
