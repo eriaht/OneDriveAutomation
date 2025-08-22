@@ -1,0 +1,131 @@
+Good question. It really comes down to **efficiency** and **control**. Here are the pros and cons of each approach:
+
+---
+
+## **1. Scrape Everything First, Then Check Subversions**
+
+**How it works:**
+
+* Step 1: Scrape all versions and store them in your JSON file or dictionary.
+* Step 2: Loop through that list, checking each version for subversions.
+
+**Pros:**
+
+* Separation of concerns: scraping and checking are independent, easier to debug.
+* You have a full snapshot of versions before doing network-heavy subversion checks.
+* Easier to pause/resume the subversion search later.
+* Can reuse the scraped JSON file without re-scraping.
+
+**Cons:**
+
+* Requires two passes (scrape first, then scan).
+
+---
+
+## **2. Check Subversions While Scraping**
+
+**How it works:**
+
+* For each version you scrape, immediately check for subversions before moving to the next version.
+
+**Pros:**
+
+* One continuous pipeline, no intermediate files if you don’t want them.
+* If the source website updates often, you always have subversions tied to the scraped version.
+* Potentially simpler if the dataset is small.
+
+**Cons:**
+
+* Slower to scrape because each version involves multiple network requests.
+* Harder to resume if the script stops mid-way.
+
+---
+
+## **Recommendation for Your Case**
+
+Since you want to **keep track of subversions and installations over time**, the **first approach is better**:
+
+* Scrape once, save everything to `onedrive_versions.json`.
+* Then have a separate script or function to read that file and check each version’s subversions, updating `found` and `installed`.
+
+This keeps your data and checks modular. Also, if the Hans Brender page changes, you don’t lose the subversion work you already did.
+
+---
+
+### Updated Data Structure for Next Step
+
+When you do the subversion search, update each entry like:
+
+```python
+{
+    "25.160.0818.0001": {
+        "date": "08/18/25",
+        "ring": "insiders",
+        "architectures": ["32bit", "64bit", "arm64"],
+        "subversions": {
+            "found": ["0002", "0003"],
+            "installed": ["0002"]
+        }
+    }
+}
+```
+
+---
+
+### How to Use the Existing Scraper with This
+
+Your current scraper makes a **list** of dicts like `[{version: {...}}, {version: {...}}]`.
+It’s better to make it a **single dict** keyed by version for easier lookups and updates:
+
+```python
+result = {}
+
+for index, row in enumerate(rows):
+    if index == 0:
+        continue
+
+    cols = row.find_all("td")
+    if len(cols) < 3:
+        continue
+
+    date = cols[0].text.strip()
+    version = cols[1].text.strip()
+    arch_links = cols[2].find_all("a")
+    architectures = [a.text.strip().lower() for a in arch_links]
+
+    result[version] = {
+        "date": date,
+        "ring": "insiders",
+        "architectures": architectures,
+        "subversions": {
+            "found": [],
+            "installed": []
+        }
+    }
+
+with open("onedrive_versions.json", "w") as f:
+    json.dump(result, f, indent=4)
+```
+
+Now, later you can do:
+
+```python
+with open("onedrive_versions.json") as f:
+    versions = json.load(f)
+
+for version in versions:
+    # loop through subversions...
+    # update versions[version]["subversions"]["found"].append("0002")
+```
+
+---
+
+### Summary
+
+* **Scrape first, then scan subversions** is cleaner and easier to maintain.
+* Store data as a **single dict keyed by version** to make updating easy.
+* Use `found` and `installed` lists for subversions to keep good history.
+
+---
+
+Would you like me to **write the second script (reads JSON and scans subversions, updates file)** for you? Or **combine everything into one script but modularized with functions**?

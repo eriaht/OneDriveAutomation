@@ -1,6 +1,6 @@
 import requests
 
-version = "25.149.0803.0001"
+version = "25.127.0701.0006"
 
 for i in range(1, 10):
     print(f"Checking OneDrive version: {version[0: -1]}{i}", end=" ")

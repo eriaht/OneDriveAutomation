@@ -51,7 +51,6 @@ def ensure_installer_finished():
         time.sleep(2)
     print("[+] Installer is no longer running.")
 
-
 def check_for_update():
     print("[+] Checking for OneDrive updates...")
     if os.path.exists(ONEDRIVE_EXE):
