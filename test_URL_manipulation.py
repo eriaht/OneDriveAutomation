@@ -5,7 +5,7 @@ import time
 from helpers.sort_versions_numerically import sort_versions_numerically
 from helpers.parse_revision_number import parse_revisision_number
 
-# Upper limit for revision number
+# Upper limit for revision number discovery
 UPPER_LIMIT = 10
 
 async def check_revision(session, version_key, i):
@@ -42,7 +42,7 @@ async def discover_revisions(version_key, version_obj, lower_limit=None):
 
     try:
         async with aiohttp.ClientSession() as session:
-            tasks = [check_revision(session, version_key, i) for i in range(lower_limit, UPPER_LIMIT)]
+            tasks = [check_revision(session, version_key, i) for i in range(lower_limit + 1, UPPER_LIMIT)]
             
             # Use return_exceptions=True to prevent one failure from stopping all tasks
             results = await asyncio.gather(*tasks, return_exceptions=True)
