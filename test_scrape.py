@@ -4,6 +4,14 @@ from bs4 import BeautifulSoup
 from helpers.check_date import check_date
 from helpers.parse_date import parse_date
 
+'''
+scraper needs to be fixed so it reads from existing file if there is one
+ - then only add the newest version from hans' site to top of list
+ - compare date from current top to date from top of hans' list
+ - check if more than on releases between the current top and top on hans'
+ - add all new versions to list, then write to file
+'''
+
 def main():
     
     hansbrender_html = requests.get("https://hansbrender.com/all-onedrive-versions-windows/")
@@ -22,8 +30,8 @@ def main():
             continue
 
         # Test
-        # if (index > 3):
-        #     break
+        if (index > 30):
+            break
 
         cols = row.find_all("td")
         
